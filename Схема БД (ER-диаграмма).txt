@@ -1,0 +1,32 @@
+┌─────────────────┐       ┌─────────────────┐       ┌──────────────────┐
+│     users       │       │   applications  │       │     courses      │
+├─────────────────┤       ├─────────────────┤       ├──────────────────┤
+│ id (PK)         │       │ id (PK)         │       │ id (PK)          │
+│ login           │◄──────│ user_id (FK)    │──────►│ name             │
+│ password        │       │ course_id (FK)  │       │ description      │
+│ full_name       │       │ desired_start   │       │ duration_hours   │
+│ phone           │       │ payment_method  │       │ price            │
+│ email           │       │ status          │       │ created_at       │
+│ is_admin        │       │ created_at      │       │ updated_at       │
+│ created_at      │       │ updated_at      │       └──────────────────┘
+│ updated_at      │       └─────────────────┘
+└─────────────────┘               ▲
+        ▲                         │
+        │                         │
+        │              ┌──────────────────┐
+        └──────────────│     reviews      │
+                       ├──────────────────┤
+                       │ id (PK)          │
+                       │ user_id (FK)     │
+                       │ application_id   │
+                       │ rating           │
+                       │ comment          │
+                       │ created_at       │
+                       │ updated_at       │
+                       └──────────────────┘
+
+Связи:
+1. users 1 → ∞ applications (один пользователь может иметь много заявок)
+2. courses 1 → ∞ applications (один курс может быть в многих заявках)
+3. applications 1 → 1 reviews (одна заявка может иметь один отзыв)
+4. users 1 → ∞ reviews (один пользователь может оставить много отзывов)
