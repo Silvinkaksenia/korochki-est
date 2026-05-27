@@ -5,30 +5,29 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-// Главная
-Route::get('/', function () {
-    if (auth()->check()) {
-        if (auth()->user()->is_admin) {
-            return redirect()->route('admin.dashboard');
-        }
-        return redirect()->route('dashboard');
-    }
-    return view('welcome');
-})->name('home');
+// ГЛАВНАЯ
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Аутентификация
+// АУТЕНТИФИКАЦИЯ
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Дашборд пользователя
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// ДАШБОРД ПОЛЬЗОВАТЕЛЯ
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
-// Заявки (только для авторизованных)
+//  КУРСЫ (ПУБЛИЧНЫЙ ДОСТУП) 
+Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+Route::get('/courses/{course}', [CourseController::class, 'show'])->name('course.show');
+
+// ЗАЯВКИ (ТОЛЬКО ДЛЯ АВТОРИЗОВАННЫХ)
 Route::middleware('auth')->group(function () {
     Route::prefix('applications')->name('applications.')->group(function () {
         Route::get('/', [ApplicationController::class, 'index'])->name('index');
@@ -38,54 +37,43 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// Маршруты для просмотра курсов пользователями
+// API МАРШРУТЫ 
+Route::get('/api/courses/search', [CourseController::class, 'search'])->name('api.courses.search');
+
+//  АДМИН-ПАНЕЛЬ 
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Главная АДМИН-ПАНЕЛЬ 
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // Заявки АДМИН-ПАНЕЛЬ 
+    Route::get('/applications', [AdminController::class, 'applications'])->name('applications.index');
+    Route::patch('/applications/{application}', [AdminController::class, 'updateStatus'])->name('applications.update');
+    
+    // Пользователи АДМИН-ПАНЕЛЬ 
+    Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+    Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+    
+    // КУРСЫ В АДМИНКЕ
+    Route::get('/courses', [CourseController::class, 'adminIndex'])->name('courses.index');
+    Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
+    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+    Route::get('/courses/{course}', [CourseController::class, 'adminShow'])->name('courses.show');
+    Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+    Route::put('/courses/{course}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
+    
+    // Дополнительные маршруты для курсов в админке
+    Route::patch('/courses/{course}/toggle-status', [CourseController::class, 'toggleStatus'])->name('courses.toggle-status');
+    Route::get('/courses-statistics', [CourseController::class, 'statistics'])->name('courses.statistics');
+});
+
+// ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ 
 Route::middleware('auth')->group(function () {
-    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
-    Route::get('/courses/{course}', [CourseController::class, 'show'])->name('course.show');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 });
 
-// ========== АДМИНКА ==========
-
-// Главная админки
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-// Заявки админки
-Route::patch('/admin/applications/{application}', [AdminController::class, 'updateStatus'])->name('admin.applications.update');
-
-// Пользователи админки
-Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users.index');
-Route::get('/admin/users/{user}', [AdminController::class, 'showUser'])->name('admin.users.show');
-
-// КУРСЫ АДМИНКИ - ЯВНО И ПОЛНОСТЬЮ
-Route::get('/admin/courses', [AdminController::class, 'courses'])->name('admin.courses');
-Route::get('/admin/courses/create', [AdminController::class, 'createCourse'])->name('admin.courses.create');
-Route::post('/admin/courses', [AdminController::class, 'storeCourse'])->name('admin.courses.store');
-Route::get('/admin/courses/{course}', [AdminController::class, 'showCourse'])->name('admin.courses.show');
-Route::get('/admin/courses/{course}/edit', [AdminController::class, 'editCourse'])->name('admin.courses.edit');
-Route::put('/admin/courses/{course}', [AdminController::class, 'updateCourse'])->name('admin.courses.update');
-Route::delete('/admin/courses/{course}', [AdminController::class, 'destroyCourse'])->name('admin.courses.destroy');
-
-// Тестовый маршрут
+// ТЕСТОВЫЙ МАРШРУТ
 Route::get('/test-routes', function() {
-    echo "<h3>Проверка маршрутов:</h3>";
     
-    $routesToCheck = [
-        'admin.courses',
-        'admin.courses.create', 
-        'admin.courses.store',
-        'admin.courses.show',
-        'admin.courses.edit',
-        'admin.courses.update',
-        'admin.courses.destroy',
-        'courses.index',
-        'course.show'
-    ];
-    
-    foreach ($routesToCheck as $routeName) {
-        if (Route::has($routeName)) {
-            echo "<p style='color: green;'>✅ Маршрут '$routeName' существует</p>";
-        } else {
-            echo "<p style='color: red;'>❌ Маршрут '$routeName' НЕ существует</p>";
-        }
-    }
-});
+})->name('test.routes');

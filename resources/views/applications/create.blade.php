@@ -45,13 +45,14 @@
                                     {{ \Carbon\Carbon::parse($selectedCourseDate)->format('d.m.Y') }}
                                     (Дата выбранного курса)
                                 </option>
-                            @endif
+                            @else
                             @foreach($availableDates as $date)
                                 <option value="{{ $date }}"
                                         {{ old('desired_start_date') == $date ? 'selected' : '' }}>
                                     {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }} ({{ \Carbon\Carbon::parse($date)->translatedFormat('l') }})
                                 </option>
                             @endforeach
+                            @endif
                         </select>
                         @error('desired_start_date')
                             <div class="invalid-feedback">{{ $message }}</div>

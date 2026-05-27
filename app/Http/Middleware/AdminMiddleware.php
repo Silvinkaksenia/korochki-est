@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
+// Обработать входящий запрос.
     public function handle(Request $request, Closure $next): Response
     {
         // Проверяем авторизацию

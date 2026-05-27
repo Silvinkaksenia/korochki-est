@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
-    /**
-     * Handle an incoming request.
-     */
+ // Обрабатывает входящий запрос.
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {

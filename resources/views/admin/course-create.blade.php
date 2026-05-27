@@ -9,7 +9,7 @@
             <div class="card-header bg-success text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Добавление нового курса</h4>
-                    <a href="{{ route('admin.courses') }}" class="btn btn-light btn-sm">
+                    <a href="{{ route('admin.courses.index') }}" class="btn btn-light btn-sm">
                         <i class="bi bi-arrow-left"></i> Назад
                     </a>
                 </div>
@@ -104,7 +104,7 @@
                         <button type="submit" class="btn btn-success btn-lg">
                             <i class="bi bi-check-circle"></i> Создать курс
                         </button>
-                        <a href="{{ route('admin.courses') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('admin.courses.index') }}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-circle"></i> Отмена
                         </a>
                     </div>

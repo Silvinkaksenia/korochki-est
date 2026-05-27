@@ -7,6 +7,12 @@
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Inputmask -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .hero-slider {
             height: 400px;
@@ -54,40 +60,43 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    
+                    <!-- КАТАЛОГ КУРСОВ - ВИДЕН ВСЕМ -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}" 
+                           href="{{ route('courses.index') }}">
+                            <i class="bi bi-book"></i> Каталог курсов
+                        </a>
+                    </li>
+                    
                     @auth
-                    @if(Auth::user()->is_admin)
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-            <i class="bi bi-speedometer2"></i> Админ-панель
-        </a>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                <i class="bi bi-card-checklist"></i> Заявки
-            </a></li>
-            <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
-                <i class="bi bi-people"></i> Пользователи
-            </a></li>
-            <li><a class="dropdown-item" href="{{ route('admin.courses') }}">
-                <i class="bi bi-book"></i> Курсы
-            </a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('admin.courses.create') }}">
-                <i class="bi bi-plus-circle"></i> Добавить курс
-            </a></li>
-        </ul>
-    </li>
-
+                        @if(Auth::user()->is_admin)
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-speedometer2"></i> Админ-панель
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                        <i class="bi bi-card-checklist"></i> Заявки
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
+                                        <i class="bi bi-people"></i> Пользователи
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.courses.index') }}">
+                                        <i class="bi bi-book"></i> Курсы
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.courses.create') }}">
+                                        <i class="bi bi-plus-circle"></i> Добавить курс
+                                    </a></li>
+                                </ul>
+                            </li>
                         @else
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('dashboard') }}">
                                     <i class="bi bi-house"></i> Главная
                                 </a>
                             </li>
-                            <li class="nav-item">
-            <a class="nav-link" href="{{ route('courses.index') }}">
-                <i class="bi bi-book"></i> Все курсы
-            </a>
-        </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('applications.create') }}">
                                     <i class="bi bi-plus-circle"></i> Новая заявка
@@ -99,6 +108,7 @@
                                 </a>
                             </li>
                         @endif
+                        
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> {{ Auth::user()->full_name }}
@@ -131,7 +141,7 @@
         </div>
     </nav>
 
-    <!-- Слайдер (только на главной странице) -->
+    <!-- Слайдер (только на главной странице) 
     @hasSection('slider')
         <div class="hero-slider">
             <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
@@ -159,7 +169,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif -->
 
     <!-- Основной контент -->
     <main class="py-4">

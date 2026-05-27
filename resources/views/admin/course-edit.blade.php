@@ -9,7 +9,7 @@
             <div class="card-header bg-warning text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="bi bi-pencil"></i> Редактирование курса</h4>
-                    <a href="{{ route('admin.courses') }}" class="btn btn-light btn-sm">
+                    <a href="{{ route('admin.courses.index') }}" class="btn btn-light btn-sm">
                         <i class="bi bi-arrow-left"></i> Назад
                     </a>
                 </div>

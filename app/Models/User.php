@@ -36,4 +36,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+
+    public function hasActiveApplicationForCourse($courseId)
+{
+    return $this->applications()
+        ->where('course_id', $courseId)
+        ->whereIn('status', ['new', 'in_progress'])
+        ->exists();
+}
 }

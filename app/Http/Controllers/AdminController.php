@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         // Проверка авторизации
         if (!Auth::check()) {
@@ -22,8 +22,94 @@ class AdminController extends Controller
             abort(403, 'Доступ запрещен. Требуются права администратора.');
         }
         
-        $applications = Application::with(['user', 'course'])->latest()->get();
+        $query = Application::with(['user', 'course', 'review']);
         
+        // Поиск по тексту
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('full_name', 'like', "%{$search}%")
+                                ->orWhere('login', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('course', function($courseQuery) use ($search) {
+                      $courseQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Фильтр по статусу
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Фиоьтр по способу оплаты
+        if ($request->filled('payment')) {
+            $query->where('payment_method', $request->payment);
+        }
+        
+        // Фильтр по курсу
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+        
+        // Фильтр по дате создания
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        // Фильтр по жедаемой дате начала
+        if ($request->filled('start_date_from')) {
+            $query->whereDate('desired_start_date', '>=', $request->start_date_from);
+        }
+        if ($request->filled('start_date_to')) {
+            $query->whereDate('desired_start_date', '<=', $request->start_date_to);
+        }
+        
+        // Фильтр по наличию отзыва
+        if ($request->filled('has_review')) {
+            if ($request->has_review == 'yes') {
+                $query->has('review');
+            } elseif ($request->has_review == 'no') {
+                $query->doesntHave('review');
+            }
+        }
+        
+        // СОРТИРОВКА
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        switch ($sortField) {
+            case 'user_name':
+                // Сортировка по имени пользователя
+                $query->leftJoin('users', 'applications.user_id', '=', 'users.id')
+                      ->select('applications.*')
+                      ->orderBy('users.full_name', $sortDirection);
+                break;
+            case 'course_name':
+                // Сортировка по названию курса
+                $query->leftJoin('courses', 'applications.course_id', '=', 'courses.id')
+                      ->select('applications.*')
+                      ->orderBy('courses.name', $sortDirection);
+                break;
+            default:
+                // Сортировка по обычным полям
+                if (in_array($sortField, ['created_at', 'desired_start_date', 'status', 'payment_method'])) {
+                    $query->orderBy($sortField, $sortDirection);
+                } else {
+                    $query->orderBy('created_at', 'desc');
+                }
+        }
+        
+        // ПАГИНАЦИЯ
+        $applications = $query->paginate(15)->withQueryString();
+        
+        // СТАТИСТИКА
         $stats = [
             'total' => Application::count(),
             'new' => Application::where('status', 'new')->count(),
@@ -31,7 +117,10 @@ class AdminController extends Controller
             'completed' => Application::where('status', 'completed')->count(),
         ];
         
-        return view('admin.dashboard', compact('applications', 'stats'));
+        // Получаем список всех курсов для выпадающего списка
+        $courses = \App\Models\Course::all();
+        
+        return view('admin.dashboard', compact('applications', 'stats', 'courses'));
     }
 
     public function updateStatus(Request $request, Application $application)
@@ -55,23 +144,47 @@ class AdminController extends Controller
         return back()->with('success', 'Статус заявки обновлен!');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        // Проверка авторизации
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Пожалуйста, войдите в систему');
+        $query = User::query()->withCount('applications');
+        
+        // Поиск по тексту
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('login', 'like', "%{$search}%")
+                  ->orWhere('full_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
         }
         
-        // Проверка прав администратора
-        if (!Auth::user()->is_admin) {
-            abort(403, 'Доступ запрещен. Требуются права администратора.');
+        // Фильтр по роли
+        if ($request->filled('role')) {
+            if ($request->role == 'admin') {
+                $query->where('is_admin', true);
+            } elseif ($request->role == 'user') {
+                $query->where('is_admin', false);
+            }
         }
         
-        $users = User::withCount('applications')->latest()->get();
+        // Сортировка
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        if (in_array($sortField, ['created_at', 'login', 'full_name', 'applications_count'])) {
+            if ($sortField == 'applications_count') {
+                $query->orderBy('applications_count', $sortDirection);
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
+        }
+        
+        // ВАЖНО: используем paginate()
+        $users = $query->paginate(15)->withQueryString();
         
         return view('admin.users', compact('users'));
     }
-
     public function showUser(User $user)
     {
         // Проверка авторизации
@@ -89,7 +202,7 @@ class AdminController extends Controller
         return view('admin.user-show', compact('user'));
     }
 
-    // ========== НОВЫЕ МЕТОДЫ ДЛЯ УПРАВЛЕНИЯ КУРСАМИ ==========
+    // МЕТОДЫ ДЛЯ УПРАВЛЕНИЯ КУРСАМИ
 
     public function courses()
     {

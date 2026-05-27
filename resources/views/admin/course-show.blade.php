@@ -10,7 +10,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="bi bi-book"></i> Информация о курсе</h4>
                     <div>
-                        <a href="{{ route('admin.courses') }}" class="btn btn-light btn-sm me-2">
+                    <a href="{{ route('admin.courses.index') }}" class="btn btn-light btn-sm me-2">
                             <i class="bi bi-arrow-left"></i> Назад
                         </a>
                         <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-light btn-sm">

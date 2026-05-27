@@ -73,7 +73,12 @@
                                         <i class="bi bi-plus-circle"></i> Подать заявку
                                     </a>
                                     <div class="text-center mt-2">
-                                        <small class="text-muted">Заявок на курс: {{ $course->applications_count }}</small>
+                                    <small class="text-muted">
+    Заявок на курс: {{ $course->applications_count }} 
+    @if($course->max_students)
+        (занято: {{ $course->max_students - $course->available_spots }} мест)
+    @endif
+</small>
                                     </div>
                                 </div>
                             </div>
