@@ -54,7 +54,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/users', [AdminController::class, 'users'])->name('users.index');
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     
-    // КУРСЫ В АДМИНКЕ
+    // КУРСЫ В АДМИН-ПАНЕЛИ
     Route::get('/courses', [CourseController::class, 'adminIndex'])->name('courses.index');
     Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');

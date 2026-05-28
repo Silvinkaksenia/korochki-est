@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="row justify-content-center login-container">
-    <div class="col-md-6">
+    <div class="col-11 col-sm-10 col-md-8 col-lg-6 col-xl-5">
         <div class="card">
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0"><i class="bi bi-person-plus"></i> Регистрация</h4>
@@ -87,6 +87,92 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .login-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+    }
+    
+    @media (max-width: 768px) {
+        .login-container {
+            min-height: calc(100vh - 180px);
+            align-items: flex-start;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        
+        .card-header h4 {
+            font-size: 1.3rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .login-container {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        .card-header h4 {
+            font-size: 1.1rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            font-size: 0.9rem;
+        }
+        
+        .form-text {
+            font-size: 0.7rem;
+        }
+    }
+    
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .btn-primary {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-primary:active {
+        transform: scale(0.98);
+    }
+    
+    .btn-link {
+        text-decoration: none;
+    }
+    
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+@endpush
 
 @section('scripts')
 <script>
